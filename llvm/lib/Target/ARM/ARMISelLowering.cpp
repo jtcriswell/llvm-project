@@ -603,12 +603,14 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
       { RTLIB::UDIV_I64, "__aeabi_uldivmod", CallingConv::ARM_AAPCS, ISD::SETCC_INVALID },
     };
 
+#if 0
     for (const auto &LC : LibraryCalls) {
       setLibcallName(LC.Op, LC.Name);
       setLibcallCallingConv(LC.Op, LC.CC);
       if (LC.Cond != ISD::SETCC_INVALID)
         setCmpLibcallCC(LC.Op, LC.Cond);
     }
+#endif
 
     // EABI dependent RTLIB
     if (TM.Options.EABIVersion == EABI::EABI4 ||
@@ -626,12 +628,14 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
         { RTLIB::MEMSET,  "__aeabi_memset",  CallingConv::ARM_AAPCS, ISD::SETCC_INVALID },
       };
 
+#if 0
       for (const auto &LC : MemOpsLibraryCalls) {
         setLibcallName(LC.Op, LC.Name);
         setLibcallCallingConv(LC.Op, LC.CC);
         if (LC.Cond != ISD::SETCC_INVALID)
           setCmpLibcallCC(LC.Op, LC.Cond);
       }
+#endif
     }
   }
 
@@ -693,10 +697,12 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
       { RTLIB::FPEXT_F16_F32, "__aeabi_h2f", CallingConv::ARM_AAPCS },
     };
 
+#if 0
     for (const auto &LC : LibraryCalls) {
       setLibcallName(LC.Op, LC.Name);
       setLibcallCallingConv(LC.Op, LC.CC);
     }
+#endif
   }
 
   if (Subtarget->isThumb1Only())
