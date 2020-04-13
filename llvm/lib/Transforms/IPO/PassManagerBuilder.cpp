@@ -38,6 +38,7 @@
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Instrumentation.h"
 #include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/ARMPicoXOM.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Scalar/InstSimplifyPass.h"
 #include "llvm/Transforms/Scalar/LICM.h"
@@ -151,6 +152,11 @@ cl::opt<bool> EnableOrderFileInstrumentation(
 static cl::opt<bool>
     EnableMatrix("enable-matrix", cl::init(false), cl::Hidden,
                  cl::desc("Enable lowering of the matrix intrinsics"));
+
+static cl::opt<bool>
+PicoXOM("arm-picoxom", cl::Hidden,
+        cl::desc("Enable ARM PicoXOM pass"),
+        cl::init(false));
 
 PassManagerBuilder::PassManagerBuilder() {
     OptLevel = 2;
@@ -470,6 +476,10 @@ void PassManagerBuilder::populateModulePassManager(
   // Whether this is a default or *LTO pre-link pipeline. The FullLTO post-link
   // is handled separately, so just check this is not the ThinLTO post-link.
   bool DefaultOrPreLinkPipeline = !PerformThinLTO;
+
+  if (PicoXOM) {
+    MPM.add(createARMPicoXOMPass());
+  }
 
   if (!PGOSampleUse.empty()) {
     MPM.add(createPruneEHPass());

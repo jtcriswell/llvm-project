@@ -1,5 +1,6 @@
 add_llvm_component_library(LLVMScalarOpts
   ADCE.cpp
+  ARMPicoXOM.cpp
   AlignmentFromAssumptions.cpp
   BDCE.cpp
   CallSiteSplitting.cpp
