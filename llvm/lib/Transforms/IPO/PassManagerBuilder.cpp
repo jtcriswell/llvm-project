@@ -1072,6 +1072,10 @@ void PassManagerBuilder::populateThinLTOPassManager(
 }
 
 void PassManagerBuilder::populateLTOPassManager(legacy::PassManagerBase &PM) {
+  if (PicoXOM) {
+    PM.add(createARMPicoXOMPass());
+  }
+
   if (LibraryInfo)
     PM.add(new TargetLibraryInfoWrapperPass(*LibraryInfo));
 
