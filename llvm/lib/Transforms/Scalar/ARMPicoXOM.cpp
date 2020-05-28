@@ -11,12 +11,23 @@
 //===----------------------------------------------------------------------===//
 
 #include "llvm/IR/Attributes.h"
+#include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Scalar/ARMPicoXOM.h"
 
 #include <string>
 
 using namespace llvm;
+
+static cl::opt<bool>
+EnableXO("arm-picoxom-xo", cl::Hidden,
+         cl::desc("Enable ARM PicoXOM XO transformation"),
+         cl::init(true));
+
+static cl::opt<bool>
+EnableAlign("arm-picoxom-align", cl::Hidden,
+            cl::desc("Enable ARM PicoXOM alignment"),
+            cl::init(true));
 
 char ARMPicoXOMPass::ID = 0;
 
@@ -49,7 +60,9 @@ ARMPicoXOMPass::runOnModule(Module & M) {
     std::string FS = FSAttr.getValueAsString();
 
     // Move the function to section .xom.
-    F.setSection(".xom");
+    if (EnableAlign) {
+      F.setSection(".xom");
+    }
 
     if (FS.find(FSExecOnly) != std::string::npos) {
       // Nothing to be done
@@ -57,12 +70,14 @@ ARMPicoXOMPass::runOnModule(Module & M) {
     }
 
     // Add the execute-only feature
-    if (FS.empty()) {
-      FS += FSExecOnly;
-    } else {
-      FS += "," + FSExecOnly;
+    if (EnableXO) {
+      if (FS.empty()) {
+        FS += FSExecOnly;
+      } else {
+        FS += "," + FSExecOnly;
+      }
+      F.addFnAttr(TargetFeatures, FS);
     }
-    F.addFnAttr(TargetFeatures, FS);
   }
 
   return true;
