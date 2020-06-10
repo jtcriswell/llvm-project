@@ -11,6 +11,7 @@
 
 #include "ARMTargetMachine.h"
 #include "ARM.h"
+#include "ARMCount.h"
 #include "ARMMacroFusion.h"
 #include "ARMSubtarget.h"
 #include "ARMTargetObjectFile.h"
@@ -545,4 +546,7 @@ void ARMPassConfig::addPreEmitPass() {
   // Identify valid longjmp targets for Windows Control Flow Guard.
   if (TM->getTargetTriple().isOSWindows())
     addPass(createCFGuardLongjmpPass());
+
+  // Run pass that collects statistics on generated code.
+  addPass(createARMCount());
 }
