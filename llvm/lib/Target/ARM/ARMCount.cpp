@@ -35,7 +35,7 @@ STATISTIC(NumBBPlaces, "Number of Places to Locate a Basic Block");
 STATISTIC(NumFallThroughs, "Number of Basic Blocks That Fall Through");
 
 // Total code size in bytes
-static const unsigned long TotalCodeMemory = 12u * 1024u * 1024u;
+static const unsigned long TotalCodeMemory = 2u * 1024u * 1024u;
 
 char ARMCount::ID = 0;
 
