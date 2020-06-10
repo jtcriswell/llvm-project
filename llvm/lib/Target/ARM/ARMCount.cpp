@@ -26,10 +26,13 @@
 using namespace llvm;
 
 STATISTIC(NumFunctions, "Number of Functions");
+STATISTIC(NumBasicBlocks, "Number of Basic Blocks");
 STATISTIC(CodeSize, "Size of Code Segment in Bytes");
 STATISTIC(LeftOver, "Amount of Memory Remaining in Code Segment");
 
 STATISTIC(NumFuncPlaces, "Number of Places to Locate a Function");
+STATISTIC(NumBBPlaces, "Number of Places to Locate a Basic Block");
+STATISTIC(NumFallThroughs, "Number of Basic Blocks That Fall Through");
 
 // Total code size in bytes
 static const unsigned long TotalCodeMemory = 12u * 1024u * 1024u;
@@ -69,6 +72,23 @@ ARMCount::runOnMachineFunction(MachineFunction & F) {
   //
   unsigned functionSize = 0;
   for (MachineFunction::iterator mbi = F.begin(); mbi != F.end(); ++mbi) {
+    //
+    // Increase the count of basic blocks.
+    //
+    ++NumBasicBlocks;
+
+    //
+    // Record whether the basic block can fall through to its successor in
+    // the control flow graph.
+    //
+    if (mbi->canFallThrough()) {
+      ++NumFallThroughs;
+    }
+
+    //
+    // Scan through all instructions within this machine basic block and
+    // calculate the size of the MachineFunction.
+    //
     for (auto mi = mbi->rbegin(); mi != mbi->rend(); ++mi) {
       // Find the size of the current function
       functionSize += TII->getInstSizeInBytes(*mi);
@@ -92,6 +112,15 @@ ARMCount::runOnMachineFunction(MachineFunction & F) {
   // functions) must be placed on a 16-byte boundary.
   //
   NumFuncPlaces = NumFunctions + (LeftOver / 2u);
+
+  //
+  // Update the number of places in which a basic block can be placed if one
+  // performed inter-procedural basic block placement.  To account for the
+  // fact that a piece of code may no longer fall through to its successor,
+  // we decrement the leftover code segment size by the number of additional
+  // jumps we would insert (i.e., one 4-byte jump for every fall-through).
+  //
+  NumBBPlaces = NumBasicBlocks + (LeftOver / 2u) - (NumFallThroughs * 4);
   return false;
 }
 
